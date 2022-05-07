@@ -88,22 +88,66 @@ class MultiHeadAttention(nn.Module):
 
 
 
+class LayerNorm(nn.Module):
+    """ LayerNorm """
+    def __init__(self, d_model, eps=1e-6):
+        super().__init__()
+        self.eps = eps
+        self.alpha = nn.Parameter(torch.ones(d_model))
+        self.beta = nn.Parameter(torch.zeros(d_model))
+
+    def forward(self, x):
+        mean = x.mean(-1, keepdim=True)
+        std = x.std(-1, keepdim=True)
+        return self.alpha * (x - mean) / (std + self.eps) + self.beta
+
+
+
+class PositionwiseFeedForward(nn.Module):
+    """ PositionwiseFeedForward """
+    def __init__(self, d_model, d_ff, dropout=0.1):
+        super().__init__()
+        self.w_1 = nn.Linear(d_model, d_ff)
+        self.w_2 = nn.Linear(d_ff, d_model)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        return self.w_2(self.dropout(F.relu(self.w_1(x))))
 
 
 
 
+class EncoderLayer(nn.Module):
+    """ EncoderLayer """
+    def __init__(self, d_model, d_ff, n_head, dropout=0.1):
+        super().__init__()
+        self.self_attn = MultiHeadAttention(n_head, d_model, d_model // n_head, d_model // n_head, dropout=dropout)
+        self.ff = PositionwiseFeedForward(d_model, d_ff, dropout=dropout)
+        self.dropout = nn.Dropout(dropout)
 
+    def forward(self, x, mask=None):
+        x = self.self_attn(x, x, x, mask=mask)[0]
+        x = self.dropout(x)
+        x = self.ff(x)
+        x = self.dropout(x)
+        return x
+
+
+
+class Encoder(nn.Module):
+    """ Encoder """
+    def __init__(self, d_model, d_ff, n_layers, n_head, dropout=0.1):
+        super().__init__()
+        self.layers = nn.ModuleList([EncoderLayer(d_model, d_ff, n_head, dropout=dropout) for _ in range(n_layers)])
+
+    def forward(self, x, mask=None):
+        for layer in self.layers:
+            x = layer(x, mask=mask)
+        return x
 
 
 if __name__ == '__main__':
-
-    multiattention =  MultiHeadAttention(n_head=2, d_model=512, d_k=64, d_v=64)
-    q = torch.randn(2, 5, 512)
-    k = torch.randn(2, 5, 512)
-    v = torch.randn(2, 5, 512)
-    output, attn = multiattention(q, k, v)
-    print(attn)
-
-
-  
-   
+    encoder = Encoder(d_model=512, d_ff=2048, n_layers=6, n_head=8, dropout=0.1)
+    x = torch.randn(1, 64, 512)
+    y = encoder(x)
+    print(y)
