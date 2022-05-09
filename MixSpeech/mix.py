@@ -24,11 +24,11 @@ class AudioDatase(Dataset):
     """
     Custom Dataset
     """
-    def __init__(self, path_to_file , MAX_LENGTH):
+    def __init__(self, path_to_file , max_len):
         self.path_to_file = path_to_file
         self.files = os.listdir(path_to_file)
         self.files = [self.path_to_file + file for file in self.files]
-        self.max_len = MAX_LENGTH
+        self.max_len = max_len
 
     def __len__(self):
         return len(self.files)
@@ -41,22 +41,22 @@ class AudioDatase(Dataset):
 
 
 
-def get_dataloader(PATH_TO_FILE, batch_size=2):
+def get_dataloader(path_to_file, max_len , batch_size=2):
     """
     DataLoader
     """
-    dataset = AudioDatase(PATH_TO_FILE , MAX_LENGTH)
+    dataset = AudioDatase(path_to_file , max_len)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
    
     return dataloader 
 
 
-def Mix_Speech():
+def Mix_Loader(path_to_file , max_len , batch_size=2 , alpha=1.0):
     """
     Mix two speech
     """
-    dataloader = get_dataloader(PATH_TO_FILE, batch_size=2)
-    alpha = np.random.beta(1, 1)
+    dataloader = get_dataloader(path_to_file ,max_len ,  batch_size)
+    alpha = np.random.beta(alpha, alpha)
     for speech_1, speech_2 in dataloader:
         mixed_speech = alpha * speech_1 + (1 - alpha) * speech_2
         yield mixed_speech
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     for i in Mix_Speech():
         
         print(i.shape)
-        
+
     
 
   
