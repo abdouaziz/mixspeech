@@ -7,6 +7,27 @@ import math
 
 
 
+class PositionalEncoding(nn.Module):
+    """
+    PositionalEncoding
+    """
+    def __init__(self, d_model, dropout=0.1, max_len=5000):
+        super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(p=dropout)
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0).transpose(0, 1)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        x = x + self.pe[:x.size(0), :]
+        return self.dropout(x)
+
+
+
 
 class ScaledDotProductAttention(nn.Module):
     """ Scaled Dot-Product Attention """
@@ -65,7 +86,7 @@ class MultiHeadAttention(nn.Module):
         """
         d_k, d_v = self.d_k, self.d_v
         n_head = self.n_head
-        residual = q
+        #residual = q
 
         batch_size, len_q, d_model = q.size()
         batch_size, len_k, d_model = k.size()
@@ -86,7 +107,7 @@ class MultiHeadAttention(nn.Module):
         output = output.view(n_head, batch_size, len_q, d_v)
         output = output.permute(1, 2, 0, 3).contiguous().view(batch_size, len_q, -1)  # b x lq x (n*dv)
         output = self.dropout(self.fc(output))
-        output = output + residual
+        #output = output + residual
 
         return output, attn
 
@@ -132,32 +153,44 @@ class EncoderLayer(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x, mask=None):
+        # Compute self attention
+        x_ = x 
         x = self.self_attn(x, x, x, mask=mask)[0]
+        
+        # Add residual and layer normalization
+        x = self.layer_norm(x + x_)
         x = self.dropout(x)
-        x = self.layer_norm(x + x)
+      
+        # Compute feed forward
+        x_ = x
         x = self.ff(x)
+
+        # Add residual and layer normalization
+        x = self.layer_norm(x + x_)
         x = self.dropout(x)
-        x = self.layer_norm(x + x)
+
+
         return x
 
 
 
-class Encoder(nn.Module):
+class TransfomerMixSpeech(nn.Module):
     """ Encoder """
     def __init__(self, d_model, d_ff, n_layers, n_head, dropout=0.1):
         super().__init__()
+        self.position_enc = PositionalEncoding(d_model, dropout=dropout)
         self.layers = nn.ModuleList([EncoderLayer(d_model, d_ff, n_head, dropout=dropout) for _ in range(n_layers)])
 
     def forward(self, x, mask=None):
+        x = self.position_enc(x)
         for layer in self.layers:
-            x = layer(x, mask)
-
-        x = torch.layer_norm(x, x.size()[1:])
+            x = layer(x, mask=mask)
         return x
-
+        
+      
 
 if __name__ == '__main__':
-    encoder = Encoder(d_model=512, d_ff=2048, n_layers=6, n_head=8, dropout=0.1)
+    encoder = TransfomerMixSpeech(d_model=512, d_ff=2048, n_layers=6, n_head=8, dropout=0.1)
     x = torch.randn(4, 64, 512)
     y = encoder(x)
     print(y)

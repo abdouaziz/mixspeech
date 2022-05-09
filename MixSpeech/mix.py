@@ -4,7 +4,7 @@ import os
 import librosa
 import numpy as np
 
-PATH_TO_FILE ="/Users/aziiz/Documents/SPEECH_PROJECT/speech_project/audio_wav_16000/"
+PATH_TO_FILE ="/Users/aziiz/Documents/Works/NLP/mixspeech/audio_wav_16000/"
 MAX_LENGTH=16000
 
 
