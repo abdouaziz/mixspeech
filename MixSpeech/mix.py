@@ -70,6 +70,7 @@ if __name__ == "__main__":
     for i in Mix_Speech():
         
         print(i.shape)
+        
     
 
   
