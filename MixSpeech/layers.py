@@ -7,25 +7,6 @@ import math
 
 
 
-#Positional Encoding
-class PositionalEncoding(nn.Module):
-    def __init__(self, d_model, dropout=0.1, max_len=5000):
-        super(PositionalEncoding, self).__init__()
-        self.dropout = nn.Dropout(p=dropout)
-        
-        pe = torch.zeros(max_len, d_model)
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
-        pe[:, 0::2] = torch.sin(position * div_term)
-        pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0).transpose(0, 1)
-        self.register_buffer('pe', pe)
-
-    def forward(self, x):
-        x = x + self.pe[:x.size(0), :]
-        return self.dropout(x)
-
-
 
 class ScaledDotProductAttention(nn.Module):
     """ Scaled Dot-Product Attention """
@@ -165,12 +146,13 @@ class Encoder(nn.Module):
     """ Encoder """
     def __init__(self, d_model, d_ff, n_layers, n_head, dropout=0.1):
         super().__init__()
-        self.position_enc = PositionalEncoding(d_model, dropout=dropout)
         self.layers = nn.ModuleList([EncoderLayer(d_model, d_ff, n_head, dropout=dropout) for _ in range(n_layers)])
 
     def forward(self, x, mask=None):
         for layer in self.layers:
-            x = layer(self.position_enc(x), mask)
+            x = layer(x, mask)
+
+        x = torch.layer_norm(x, x.size()[1:])
         return x
 
 
