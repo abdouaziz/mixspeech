@@ -5,7 +5,7 @@ import librosa
 import numpy as np
 
 PATH_TO_FILE ="/Users/aziiz/Documents/Works/NLP/mixspeech/audio_wav_16000/"
-MAX_LENGTH=16000
+MAX_LENGTH=100000
 
 
 def pad_audio(audio, max_len):
@@ -60,15 +60,16 @@ def Mix_Speech():
     for speech_1, speech_2 in dataloader:
         mixed_speech = alpha * speech_1 + (1 - alpha) * speech_2
         yield mixed_speech
+
+
    
 
 
-# if __name__ == "__main__":
-#     dataloader = get_dataloader(PATH_TO_FILE, batch_size=2)
-#     data = next(iter(dataloader))
-#     for i in mix_speech(dataloader):
+if __name__ == "__main__":
+   
+    for i in Mix_Speech():
         
-#         print(i)
+        print(i.shape)
     
 
   
