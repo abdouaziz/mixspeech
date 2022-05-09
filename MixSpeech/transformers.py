@@ -1,7 +1,31 @@
+from matplotlib.pyplot import cla
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
- 
+import math
+
+
+
+
+#Positional Encoding
+class PositionalEncoding(nn.Module):
+    def __init__(self, d_model, dropout=0.1, max_len=5000):
+        super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(p=dropout)
+        
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0).transpose(0, 1)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        x = x + self.pe[:x.size(0), :]
+        return self.dropout(x)
+
+
 
 class ScaledDotProductAttention(nn.Module):
     """ Scaled Dot-Product Attention """
@@ -123,13 +147,16 @@ class EncoderLayer(nn.Module):
         super().__init__()
         self.self_attn = MultiHeadAttention(n_head, d_model, d_model // n_head, d_model // n_head, dropout=dropout)
         self.ff = PositionwiseFeedForward(d_model, d_ff, dropout=dropout)
+        self.layer_norm = LayerNorm(d_model)
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x, mask=None):
         x = self.self_attn(x, x, x, mask=mask)[0]
         x = self.dropout(x)
+        x = self.layer_norm(x + x)
         x = self.ff(x)
         x = self.dropout(x)
+        x = self.layer_norm(x + x)
         return x
 
 
@@ -138,16 +165,18 @@ class Encoder(nn.Module):
     """ Encoder """
     def __init__(self, d_model, d_ff, n_layers, n_head, dropout=0.1):
         super().__init__()
+        self.position_enc = PositionalEncoding(d_model, dropout=dropout)
         self.layers = nn.ModuleList([EncoderLayer(d_model, d_ff, n_head, dropout=dropout) for _ in range(n_layers)])
 
     def forward(self, x, mask=None):
         for layer in self.layers:
-            x = layer(x, mask=mask)
+            x = layer(self.position_enc(x), mask)
         return x
 
 
 if __name__ == '__main__':
     encoder = Encoder(d_model=512, d_ff=2048, n_layers=6, n_head=8, dropout=0.1)
-    x = torch.randn(1, 64, 512)
+    x = torch.randn(4, 64, 512)
     y = encoder(x)
     print(y)
+    print(y.shape)
