@@ -2,7 +2,7 @@ from tkinter import Y
 import torch
 import torch.nn as nn
 from layers import TransfomerMixSpeech
-from mix import Mix_Loader
+from loader import Mix_Loader
 from features import FeaturesEncoder
 from layers import PositionalEncoding
 import numpy as np 
