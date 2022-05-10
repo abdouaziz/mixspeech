@@ -5,16 +5,16 @@ import torch.nn.functional as F
 
 
 class FeaturesEncoder (nn.Module):
-    def __init__(self,input_size):
+    def __init__(self,input_chanel):
         super(FeaturesEncoder, self).__init__()
         self.encoder = nn.Sequential(
-            nn.Conv1d(in_channels=input_size, out_channels=512, kernel_size=10, stride=5),
+            nn.Conv1d(in_channels=input_chanel, out_channels=512, kernel_size=10, stride=5),
             nn.Conv1d(in_channels=512, out_channels=512, kernel_size=3, stride=2),
             nn.Conv1d(in_channels=512, out_channels=512, kernel_size=3, stride=2),
             nn.Conv1d(in_channels=512, out_channels=512, kernel_size=3, stride=2),
             nn.Conv1d(in_channels=512, out_channels=512, kernel_size=3, stride=2),
             nn.Conv1d(in_channels=512, out_channels=512, kernel_size=2, stride=2),
-            nn.Conv1d(in_channels=512, out_channels=512, kernel_size=2, stride=2),
+            nn.Conv1d(in_channels=512, out_channels=768, kernel_size=2, stride=2),
         )
         self.gelu = nn.GELU()
 
@@ -25,19 +25,6 @@ class FeaturesEncoder (nn.Module):
             x = layer_norm(x)
             x = self.gelu(x) 
         return x
-
-
-
-
-
-
-if __name__ == '__main__':
-    encoder = FeaturesEncoder()
-    x = torch.randn(4, 1, 1000)
-    y = encoder(x)
-    print(y.shape)
-
-
 
 
 

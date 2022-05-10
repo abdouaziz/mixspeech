@@ -187,11 +187,3 @@ class TransfomerMixSpeech(nn.Module):
             x = layer(x, mask=mask)
         return x
         
-      
-
-if __name__ == '__main__':
-    encoder = TransfomerMixSpeech(d_model=512, d_ff=2048, n_layers=6, n_head=8, dropout=0.1)
-    x = torch.randn(4, 64, 512)
-    y = encoder(x)
-    print(y)
-    print(y.shape)
