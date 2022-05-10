@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+
+
+
 class FeaturesEncoder (nn.Module):
     def __init__(self,):
         super(FeaturesEncoder, self).__init__()

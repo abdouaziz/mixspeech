@@ -33,12 +33,8 @@ class Model(nn.Module):
 
 if __name__ == "__main__":
     model = Model(d_model=512, d_ff=2048, n_layers=6, n_head=8, dropout=0.1)
-    #x = torch.randn(1, 1, 512)
-    for x in dataloader:
-        x = x.reshape(100 , 1 , 512)
-        Y = model(x)
-       
-        
-        break 
+    x = torch.randn(1, 1, 512)
+    y = model(x)
+    print(y.shape)
+    print(y)
     
- 
