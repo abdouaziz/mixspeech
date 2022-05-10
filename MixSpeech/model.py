@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
-from layers import TransfomerMixSpeech
-from loader import Mix_Loader
-from features import FeaturesEncoder
-from layers import PositionalEncoding
+from Layers import TransfomerMixSpeech
+from Loader import Mix_Loader
+from Features import FeaturesEncoder
+from Layers import PositionalEncoding
 
 
 
@@ -25,7 +25,7 @@ CONFIG ={
     }
 
 PATH_TO_FILE ="/Users/aziiz/Documents/Works/NLP/mixspeech/audio_wav_16000/"
-MAX_LENGTH=100000
+MAX_LENGTH=768
 
 
 dataloader = Mix_Loader(PATH_TO_FILE , MAX_LENGTH , batch_size=2 , alpha=1.0)
@@ -43,19 +43,49 @@ class Model(nn.Module):
         #print("the shape after the ouput is here : ", x.shape)
         x = self.position_enc(x.transpose(1, 2))
         x = self.transformer(x, mask=mask)
+        #Pooling 
+        x = x.mean(dim=1)
         return x
+
+
+
+#Contrastive learning loss function
+def loss_function (outputs, labels):
+    """
+    Args:
+
+        outputs: [batch_size, num_classes]
+        labels: [batch_size]
+    Returns:
+    
+            loss: [1]   
+    """
+    
+
 
 
 
 
 if __name__ == "__main__":
-    model = Model(d_model=768, d_ff=3072, n_layers=12, n_head=8, input_chanel=10, dropout=0.05)
+    model = Model(d_model=768, d_ff=3072, n_layers=12, n_head=8, input_chanel=1, dropout=0.05)
     dataloader = Mix_Loader(PATH_TO_FILE , MAX_LENGTH , batch_size=2 , alpha=1.0)
     for x  in dataloader:
-        x = x.view(1,-1,10000)
-        y = model(x)
-        print("the output of shape ",y.shape)
-        print(x.shape)
+        x = x.view(1,-1,768)
+        print("The input shape ",x.shape)
+        outputs = model(x)
+        print("The output shape ",outputs.shape)
+
+        print("the output type is here : ", type(outputs))
+        print("the input type is here : ", type(x))
+
+        loss = loss_function(x, outputs)
+        print("The loss is here : ", loss)
+
+       
+      
+       
+
+      
         break 
  
 
