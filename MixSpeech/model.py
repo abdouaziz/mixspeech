@@ -13,14 +13,14 @@ CONFIG ={
     'batch_size': 2,
     'num_workers': 4,
     'learning_rate': 0.001,
-    'max_length': 100000,
+    'max_length': 768,
     'n_heads': 8,
     'n_layers': 12,
     'd_model': 768,
     'd_ff': 2048,
     'dropout': 0.05,
     'path_to_file': '/Users/aziiz/Documents/Works/NLP/mixspeech/audio_wav_16000/',
-    'input_channel': 10,
+    'input_channel': 1,
     'alpha': 1.0,
    
     }
@@ -53,7 +53,7 @@ class Model(nn.Module):
 
 
 def loss_fn (output, target):
-    return F.cross_entropy(output, target)
+    return nn.BCEWithLogitsLoss(reduce=False)(output, target)
 
 
 def train_step(model, dataloader, optimizer, loss_fn, epoch):
@@ -63,7 +63,8 @@ def train_step(model, dataloader, optimizer, loss_fn, epoch):
 
         #Compute predicion and loss 
         output = model (data)
-        loss =  loss_fn(output, data)
+        loss =  loss_fn(data, output.expand_as(data))
+        loss = loss.mean()
 
         #Backpropagate and update weights
         optimizer.zero_grad()
@@ -71,7 +72,7 @@ def train_step(model, dataloader, optimizer, loss_fn, epoch):
         optimizer.step()
 
         #Print the loss
-    return loss.item()
+    return loss
 
 
  # Define the loss function
@@ -126,18 +127,20 @@ if __name__ == "__main__":
 
 
 
+""" 
 
-
-"""    model = Model(d_model=768, d_ff=3072, n_layers=12, n_head=8, input_chanel=1, dropout=0.05)
+    model = Model(d_model=768, d_ff=3072, n_layers=12, n_head=8, input_chanel=1, dropout=0.05)
     dataloader = Mix_Loader(PATH_TO_FILE , MAX_LENGTH , batch_size=2 , alpha=1.0)
     for x  in dataloader:
         x = x.view(1,-1,768)
-       # print("The input shape ",x.shape)
+        print("The input shape ",x.shape)
         outputs = model(x)
-        print("The output shape ",outputs.shape)
+      
+        print("The output shape ",outputs.mean(dim=1).shape)
+        loss = loss_fn(x, outputs.expand_as(x))
+        print("Here the loss is ",loss.mean().item())
 
 
-        break  """
- 
-
- 
+        break 
+    
+"""
