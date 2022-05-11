@@ -21,6 +21,7 @@ CONFIG ={
     'dropout': 0.05,
     'path_to_file': '/Users/aziiz/Documents/Works/NLP/mixspeech/audio_wav_16000/',
     'input_channel': 10,
+    'alpha': 1.0,
    
     }
 
@@ -73,9 +74,14 @@ def train_step(model, dataloader, optimizer, loss_fn, epoch):
     return loss.item()
 
 
+ # Define the loss function
+loss_fn = loss_fn 
+
 
 
 def main():
+
+   
     # Define the model
 
     model = Model(d_model=CONFIG['d_model'], 
@@ -92,9 +98,7 @@ def main():
     # Define the optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=CONFIG['learning_rate'])
 
-    # Define the loss function
-    loss_fn = loss_fn
-
+   
     # Train the model
     for epoch in range(CONFIG['num_epochs']):
         loss = train_step(model, dataloader, optimizer, loss_fn, epoch)
