@@ -174,15 +174,16 @@ class EncoderLayer(nn.Module):
 
 
 
+
 class TransfomerMixSpeech(nn.Module):
     """ Encoder """
     def __init__(self, d_model, d_ff, n_layers, n_head, dropout=0.1):
         super().__init__()
-        self.position_enc = PositionalEncoding(d_model, dropout=dropout)
+       #   self.position_enc = PositionalEncoding(d_model, dropout=dropout)
         self.layers = nn.ModuleList([EncoderLayer(d_model, d_ff, n_head, dropout=dropout) for _ in range(n_layers)])
 
     def forward(self, x, mask=None):
-        x = self.position_enc(x)
+       # x = self.position_enc(x)
         for layer in self.layers:
             x = layer(x, mask=mask)
         return x

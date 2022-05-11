@@ -4,7 +4,7 @@ from Layers import TransfomerMixSpeech
 from Loader import Mix_Loader
 from Features import FeaturesEncoder
 from Layers import PositionalEncoding
-
+import torch.functional as F
 
 
 # Define the model configuration
@@ -40,53 +40,100 @@ class Model(nn.Module):
        
     def forward(self, x, mask=None):
         x = self.features(x)
-        #print("the shape after the ouput is here : ", x.shape)
-        x = self.position_enc(x.transpose(1, 2))
+        x = x.permute(0,2,1) 
+        x = self.position_enc(x)
         x = self.transformer(x, mask=mask)
+        #print("the shape after transformer is : ", x.shape)
         #Pooling 
         x = x.mean(dim=1)
+       # print("the shape after pooling is : ", x.shape)
         return x
 
 
 
-#Contrastive learning loss function
-def loss_function (outputs, labels):
-    """
-    Args:
+def loss_fn (output, target):
+    return F.cross_entropy(output, target)
 
-        outputs: [batch_size, num_classes]
-        labels: [batch_size]
-    Returns:
-    
-            loss: [1]   
-    """
-    
+
+def train_step(model, dataloader, optimizer, loss_fn, epoch):
+    model.train()
+    for data in dataloader:
+        data = data.view(1,-1,768)
+
+        #Compute predicion and loss 
+        output = model (data)
+        loss =  loss_fn(output, data)
+
+        #Backpropagate and update weights
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        #Print the loss
+    return loss.item()
+
+
+
+
+def main():
+    # Define the model
+
+    model = Model(d_model=CONFIG['d_model'], 
+                d_ff=CONFIG['d_ff'], 
+                n_layers=CONFIG['n_layers'], 
+                n_head=CONFIG['n_heads'], 
+                input_chanel=CONFIG['input_channel'], 
+                dropout=CONFIG['dropout'] ,
+                )
+
+
+    dataloader = Mix_Loader(CONFIG['path_to_file'] , CONFIG['max_length'] , batch_size=CONFIG['batch_size'] , alpha=CONFIG['alpha'])
+
+    # Define the optimizer
+    optimizer = torch.optim.Adam(model.parameters(), lr=CONFIG['learning_rate'])
+
+    # Define the loss function
+    loss_fn = loss_fn
+
+    # Train the model
+    for epoch in range(CONFIG['num_epochs']):
+        loss = train_step(model, dataloader, optimizer, loss_fn, epoch)
+        print("Epoch: {} , Loss: {}".format(epoch, loss))
+
+
+
+       
+
+
 
 
 
 
 
 if __name__ == "__main__":
-    model = Model(d_model=768, d_ff=3072, n_layers=12, n_head=8, input_chanel=1, dropout=0.05)
+    main()
+
+
+
+
+
+
+
+
+
+
+
+
+"""    model = Model(d_model=768, d_ff=3072, n_layers=12, n_head=8, input_chanel=1, dropout=0.05)
     dataloader = Mix_Loader(PATH_TO_FILE , MAX_LENGTH , batch_size=2 , alpha=1.0)
     for x  in dataloader:
         x = x.view(1,-1,768)
-        print("The input shape ",x.shape)
+       # print("The input shape ",x.shape)
         outputs = model(x)
         print("The output shape ",outputs.shape)
 
-        print("the output type is here : ", type(outputs))
-        print("the input type is here : ", type(x))
 
-        loss = loss_function(x, outputs)
-        print("The loss is here : ", loss)
-
-       
-      
-       
-
-      
-        break 
+        break  """
  
 
  
