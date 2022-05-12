@@ -6,7 +6,7 @@ from Features import FeaturesEncoder
 from Layers import PositionalEncoding
 import torch.functional as F
 import logging
-from Loss import cosine_similarity , loss_similarity
+from Loss import loss_similarity
 
 # Define the model configuration
 CONFIG ={
@@ -44,17 +44,13 @@ class Model(nn.Module):
         x = self.features(x)
         x = x.permute(0,2,1) 
         x = self.position_enc(x)
-        x = self.transformer(x, mask=mask)
+        Y = self.transformer(x, mask=mask)
         #print("the shape after transformer is : ", x.shape)
         #Pooling 
-        #x = x.mean(dim=1)
+        output = x.mean(dim=1)
        # print("the shape after pooling is : ", x.shape)
-        return x
+        return output , Y
 
-
-
-def loss_fn (output, target):
-    return nn.BCEWithLogitsLoss(reduce=False)(output, target)
 
 
 def train_step(model, dataloader, optimizer, loss_fn):
@@ -77,16 +73,11 @@ def train_step(model, dataloader, optimizer, loss_fn):
     return loss
 
 
- # Define the loss function
-loss_fn = loss_fn 
 
 
 
 def main():
 
-    logging.basicConfig(level=logging.INFO)
-
-   
     # Define the model
 
     model = Model(d_model=CONFIG['d_model'], 
@@ -124,12 +115,6 @@ if __name__ == "__main__":
 
 
 
-
-
-
-
-
-
  
 
     model = Model(d_model=768, d_ff=3072, n_layers=12, n_head=8, input_chanel=1, dropout=0.05)
@@ -137,13 +122,19 @@ if __name__ == "__main__":
     for x  in dataloader:
         x = x.view(1,-1,768)
         print("The input shape ",x.shape)
-        outputs = model(x)
+        output, Y = model(x)
+
+        Y = Y.reshape(-1,1 , 768)
       
-        print("The output shape ",outputs.shape)
+        print("The output shape ",output.shape) 
+
+        print("The Y shape ",Y.shape)
         
            
 
-        print("cosine similarity is : ", loss_similarity(outputs, x))
+        print("cosine similarity is : ", loss_similarity(x, output , Y))
+
+      #  print("the reshape of Y", Y.shape)
        
 
         break 

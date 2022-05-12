@@ -6,6 +6,11 @@ import numpy as np
 
 
 
+PATH_TO_FILE ="/Users/aziiz/Documents/Works/NLP/mixspeech/audio_wav_16000/"
+MAX_LENGTH=768
+
+
+
 def pad_audio(audio, max_len):
     """
     Pad audio to max_len
@@ -57,7 +62,17 @@ def Mix_Loader(path_to_file , max_len , batch_size=2 , alpha=1.0):
     alpha = np.random.beta(alpha, alpha)
     for speech_1, speech_2 in dataloader:
         mixed_speech = alpha * speech_1 + (1 - alpha) * speech_2
+
         yield mixed_speech
 
 
-  
+
+
+
+if __name__=='__main__':
+    dataloader = Mix_Loader(PATH_TO_FILE , MAX_LENGTH , batch_size=2 , alpha=1.0)
+
+    for data in dataloader:
+        print(data)
+        break 
+
