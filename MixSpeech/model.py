@@ -59,10 +59,12 @@ def train_step(model, dataloader, optimizer, loss_fn):
         data = data.view(1,-1,768)
 
         #Compute predicion and loss 
-        output = model(data)
-        loss =  loss_fn(data, output.expand_as(data))
-        loss = loss.mean()
-        print("the loss is here : ", loss)
+        output, Y = model(data)
+
+        Y = Y.reshape(-1,1 , 768)
+      
+     
+        loss =  loss_fn(data , output, Y)
 
         #Backpropagate and update weights
         optimizer.zero_grad()
@@ -97,13 +99,8 @@ def main():
    
     # Train the model
     for epoch in range(CONFIG['num_epochs']):
-        loss = train_step(model, dataloader, optimizer, loss_fn)
+        loss = train_step(model, dataloader, optimizer , loss_fn=loss_similarity)
         print("Epoch: {} , Loss: {}".format(epoch, loss))
-
-
-
-       
-
 
 
 
@@ -111,31 +108,30 @@ def main():
 
 
 if __name__ == "__main__":
-    #main()
+    
+    main()
 
 
 
  
 
-    model = Model(d_model=768, d_ff=3072, n_layers=12, n_head=8, input_chanel=1, dropout=0.05)
-    dataloader = Mix_Loader(PATH_TO_FILE , MAX_LENGTH , batch_size=2 , alpha=1.0)
-    for x  in dataloader:
-        x = x.view(1,-1,768)
-        print("The input shape ",x.shape)
-        output, Y = model(x)
+    # model = Model(d_model=768, d_ff=3072, n_layers=12, n_head=8, input_chanel=1, dropout=0.05)
+    # dataloader = Mix_Loader(PATH_TO_FILE , MAX_LENGTH , batch_size=2 , alpha=1.0)
+    # for x  in dataloader:
+    #     x = x.view(1,-1,768)
+    #     print("The input shape ",x.shape)
+    #     output, Y = model(x)
 
-        Y = Y.reshape(-1,1 , 768)
+    #     Y = Y.reshape(-1,1 , 768)
       
-        print("The output shape ",output.shape) 
+    #     print("The output shape ",output.shape) 
 
-        print("The Y shape ",Y.shape)
+    #     print("The Y shape ",Y.shape)
         
-           
+    #     print("cosine similarity is : ", loss_similarity(x, output , Y))
 
-        print("cosine similarity is : ", loss_similarity(x, output , Y))
-
-      #  print("the reshape of Y", Y.shape)
+    #   #  print("the reshape of Y", Y.shape)
        
 
-        break 
+    #     break 
     

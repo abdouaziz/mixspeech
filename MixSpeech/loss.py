@@ -44,7 +44,7 @@ def loss_similarity(x1, x2 , distractors, mask=None, eps=1e-8):
     
 
   
-    return torch.div(num, denom).mean()
+    return torch.div(num, denom).mean().item()
 
 
 
