@@ -5,7 +5,8 @@ from Loader import Mix_Loader
 from Features import FeaturesEncoder
 from Layers import PositionalEncoding
 import torch.functional as F
-
+import logging
+from Loss import cosine_similarity , loss_similarity
 
 # Define the model configuration
 CONFIG ={
@@ -46,7 +47,7 @@ class Model(nn.Module):
         x = self.transformer(x, mask=mask)
         #print("the shape after transformer is : ", x.shape)
         #Pooling 
-        x = x.mean(dim=1)
+        #x = x.mean(dim=1)
        # print("the shape after pooling is : ", x.shape)
         return x
 
@@ -56,15 +57,16 @@ def loss_fn (output, target):
     return nn.BCEWithLogitsLoss(reduce=False)(output, target)
 
 
-def train_step(model, dataloader, optimizer, loss_fn, epoch):
+def train_step(model, dataloader, optimizer, loss_fn):
     model.train()
     for data in dataloader:
         data = data.view(1,-1,768)
 
         #Compute predicion and loss 
-        output = model (data)
+        output = model(data)
         loss =  loss_fn(data, output.expand_as(data))
         loss = loss.mean()
+        print("the loss is here : ", loss)
 
         #Backpropagate and update weights
         optimizer.zero_grad()
@@ -81,6 +83,8 @@ loss_fn = loss_fn
 
 
 def main():
+
+    logging.basicConfig(level=logging.INFO)
 
    
     # Define the model
@@ -102,7 +106,7 @@ def main():
    
     # Train the model
     for epoch in range(CONFIG['num_epochs']):
-        loss = train_step(model, dataloader, optimizer, loss_fn, epoch)
+        loss = train_step(model, dataloader, optimizer, loss_fn)
         print("Epoch: {} , Loss: {}".format(epoch, loss))
 
 
@@ -116,7 +120,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    #main()
 
 
 
@@ -126,8 +130,7 @@ if __name__ == "__main__":
 
 
 
-
-""" 
+ 
 
     model = Model(d_model=768, d_ff=3072, n_layers=12, n_head=8, input_chanel=1, dropout=0.05)
     dataloader = Mix_Loader(PATH_TO_FILE , MAX_LENGTH , batch_size=2 , alpha=1.0)
@@ -136,11 +139,12 @@ if __name__ == "__main__":
         print("The input shape ",x.shape)
         outputs = model(x)
       
-        print("The output shape ",outputs.mean(dim=1).shape)
-        loss = loss_fn(x, outputs.expand_as(x))
-        print("Here the loss is ",loss.mean().item())
+        print("The output shape ",outputs.shape)
+        
+           
 
+        print("cosine similarity is : ", loss_similarity(outputs, x))
+       
 
         break 
     
-"""
