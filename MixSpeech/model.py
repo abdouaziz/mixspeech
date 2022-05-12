@@ -66,6 +66,7 @@ def train_step(model, dataloader, optimizer, loss_fn):
      
         loss =  loss_fn(data , output, Y)
 
+     
         #Backpropagate and update weights
         optimizer.zero_grad()
         loss.backward()
@@ -100,7 +101,10 @@ def main():
     # Train the model
     for epoch in range(CONFIG['num_epochs']):
         loss = train_step(model, dataloader, optimizer , loss_fn=loss_similarity)
-        print("Epoch: {} , Loss: {}".format(epoch, loss))
+
+        if epoch % 10 == 0:
+            
+            print("Epoch: {} , Loss: {}".format(epoch, loss.item()))
 
 
 
