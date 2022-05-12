@@ -1,3 +1,4 @@
+from cmath import inf
 import torch
 import torch.nn as nn
 from Layers import TransfomerMixSpeech
@@ -5,8 +6,10 @@ from Loader import Mix_Loader
 from Features import FeaturesEncoder
 from Layers import PositionalEncoding
 import torch.functional as F
-import logging
+import numpy as np
 from Loss import loss_similarity
+import logging
+
 
 # Define the model configuration
 CONFIG ={
@@ -54,7 +57,14 @@ class Model(nn.Module):
 
 
 def train_step(model, dataloader, optimizer, loss_fn):
+    """
+    Train the model for one step
+    """
+
     model.train()
+
+    losses = []
+
     for data in dataloader:
         data = data.view(1,-1,768)
 
@@ -63,17 +73,16 @@ def train_step(model, dataloader, optimizer, loss_fn):
 
         Y = Y.reshape(-1,1 , 768)
       
-     
         loss =  loss_fn(data , output, Y)
+        losses.append(loss.item())
 
-     
         #Backpropagate and update weights
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
         #Print the loss
-    return loss
+    return np.mean(losses)
 
 
 
@@ -81,18 +90,28 @@ def train_step(model, dataloader, optimizer, loss_fn):
 
 def main():
 
+    #logging.INFO("Initializing the model and Training .... ")
+
+    print("Initializing the model and Training .... ")
+
     # Define the model
 
+    loss_current = torch.inf
+
     model = Model(d_model=CONFIG['d_model'], 
-                d_ff=CONFIG['d_ff'], 
-                n_layers=CONFIG['n_layers'], 
-                n_head=CONFIG['n_heads'], 
-                input_chanel=CONFIG['input_channel'], 
-                dropout=CONFIG['dropout'] ,
+                  d_ff=CONFIG['d_ff'], 
+                  n_layers=CONFIG['n_layers'], 
+                  n_head=CONFIG['n_heads'], 
+                  input_chanel=CONFIG['input_channel'], 
+                  dropout=CONFIG['dropout'] ,
                 )
 
 
-    dataloader = Mix_Loader(CONFIG['path_to_file'] , CONFIG['max_length'] , batch_size=CONFIG['batch_size'] , alpha=CONFIG['alpha'])
+    dataloader = Mix_Loader(CONFIG['path_to_file'] ,
+                            CONFIG['max_length'] , 
+                            batch_size=CONFIG['batch_size'] , 
+                            alpha=CONFIG['alpha']
+                        )
 
     # Define the optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=CONFIG['learning_rate'])
@@ -102,12 +121,11 @@ def main():
     for epoch in range(CONFIG['num_epochs']):
         loss = train_step(model, dataloader, optimizer , loss_fn=loss_similarity)
 
-        if epoch % 10 == 0:
-            
-            print("Epoch: {} , Loss: {}".format(epoch, loss.item()))
+        print("Epoch: {} , Loss: {}".format(epoch, loss))
 
-
-
+        if loss < loss_current:
+            loss_current = loss
+            torch.save(model.state_dict(), "/Users/aziiz/Documents/Works/NLP/mixspeech/models/model.bin")
 
 
 
