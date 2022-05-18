@@ -1,5 +1,6 @@
 from matplotlib.pyplot import cla
 import torch
+from features import FeaturesEncoder
 import torch.nn as nn
 from torch.nn import functional as F
 import math
@@ -7,9 +8,14 @@ import math
 
 
 
+
+
+
 class PositionalEncoding(nn.Module):
     """
-    PositionalEncoding
+    Implement the positional encoding (PE) function.
+    PE_(pos, 2i)    =  sin(pos / 10000 ** (2i / d_model))
+    PE_(pos, 2i+1)  =  cos(pos / 10000 ** (2i / d_model))
     """
     def __init__(self, d_model, dropout=0.1, max_len=5000):
         super(PositionalEncoding, self).__init__()
@@ -23,6 +29,7 @@ class PositionalEncoding(nn.Module):
         self.register_buffer('pe', pe)
 
     def forward(self, x):
+        x = x.permute(2,0,1)
         x = x + self.pe[:x.size(0), :]
         return self.dropout(x)
 
@@ -80,6 +87,7 @@ class MultiHeadAttention(nn.Module):
             k: [batch_size, len_k, d_model]
             v: [batch_size, len_v, d_model]
             mask: [batch_size, len_q, len_k]
+
         Returns:
             context: [batch_size, len_q, d_model]
             attn: [batch_size, n_head, len_q, len_k]
@@ -114,6 +122,10 @@ class MultiHeadAttention(nn.Module):
 
 
 
+
+
+
+
 class LayerNorm(nn.Module):
     """ LayerNorm """
     def __init__(self, d_model, eps=1e-6):
@@ -130,7 +142,10 @@ class LayerNorm(nn.Module):
 
 
 class PositionwiseFeedForward(nn.Module):
-    """ PositionwiseFeedForward """
+    """
+    Implement position-wise feed forward layer.
+    FFN(x) = max(0, xW1 + b1)W2 + b2
+    """
     def __init__(self, d_model, d_ff, dropout=0.1):
         super().__init__()
         self.w_1 = nn.Linear(d_model, d_ff)
@@ -173,8 +188,6 @@ class EncoderLayer(nn.Module):
         return x
 
 
-
-
 class TransfomerMixSpeech(nn.Module):
     """ Encoder """
     def __init__(self, d_model, d_ff, n_layers, n_head, dropout=0.1):
@@ -187,4 +200,23 @@ class TransfomerMixSpeech(nn.Module):
         for layer in self.layers:
             x = layer(x, mask=mask)
         return x
+
+
+class Model(nn.Module):
+    def __init__(self, d_model, d_ff, n_layers, n_head, input_chanel ,  dropout=0.1):
+        super().__init__()
+        self.features = FeaturesEncoder(input_chanel)
+        self.position_enc = PositionalEncoding(d_model, dropout=dropout)
+        self.transformer = TransfomerMixSpeech(d_model, d_ff, n_layers, n_head, dropout=dropout)
+       
+    def forward(self, x, mask=None):
+        x = self.features(x)  
+        x = self.position_enc(x) 
+        Y = self.transformer(x, mask=mask)
         
+        output = x.mean(dim=1)
+        
+        return output , Y
+
+        
+

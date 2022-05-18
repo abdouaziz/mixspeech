@@ -7,7 +7,7 @@ import numpy as np
 
 
 PATH_TO_FILE ="/Users/aziiz/Documents/Works/NLP/mixspeech/audio_wav_16000/"
-MAX_LENGTH=768
+MAX_LENGTH=100000
 
 
 
@@ -44,7 +44,7 @@ class AudioDatase(Dataset):
 
 
 
-def get_dataloader(path_to_file, max_len , batch_size=2):
+def get_dataloader(path_to_file, max_len , batch_size=4):
     """
     DataLoader
     """
@@ -63,16 +63,24 @@ def Mix_Loader(path_to_file , max_len , batch_size=2 , alpha=1.0):
     for speech_1, speech_2 in dataloader:
         mixed_speech = alpha * speech_1 + (1 - alpha) * speech_2
 
-        yield mixed_speech
+        yield {
+            'speech_1': speech_1,
+            'speech_2': speech_2,
+            'mixed_speech': mixed_speech,
+            'alpha': alpha
+        }
 
 
 
-
-
-if __name__=='__main__':
+""" if __name__=='__main__':
     dataloader = Mix_Loader(PATH_TO_FILE , MAX_LENGTH , batch_size=2 , alpha=1.0)
+    
 
     for data in dataloader:
-        print(data)
+        print(data.shape)
+
         break 
+ """
+
+         
 

@@ -19,13 +19,11 @@ def cosine_similarity(x1, x2, dim=1, eps=1e-8):
     Returns:
         Tensor of shape [batch_size, n_1, ..., n_k].
     """
-    dot_product = torch.sum(x1 * x2, dim)
-    x1_norm = torch.norm(x1, 2, dim)
-    x2_norm = torch.norm(x2, 2, dim)
-    return dot_product / (x1_norm * x2_norm + eps)
+    
+    return nn.CosineSimilarity(dim, eps)(x1, x2)
 
 
-def loss_similarity(x1, x2 , distractors, mask=None, eps=1e-8):
+def loss_fn (output , Y , fx_1 , fx_2 , alpha):
     """Cosine similarity between x1 and x2 along dim.
     Args:
         x1: Tensor of shape [batch_size, d_1, ..., d_k].
@@ -36,24 +34,29 @@ def loss_similarity(x1, x2 , distractors, mask=None, eps=1e-8):
     Returns:
         Tensor of shape [batch_size, n_1, ..., n_k].
     """
+    Y = Y.permute(1,0,2)
     
-    num = torch.exp(cosine_similarity(x1, x2))
+    num_1 = alpha * torch.exp(cosine_similarity(output, fx_1))
+    num_2 = (1 - alpha) * torch.exp(cosine_similarity(output, fx_2))
 
    
-    denom = torch.exp(np.sum(cosine_similarity(x1, i) for i in distractors) )
+    denom = torch.exp(np.sum(cosine_similarity(output, i) for i in Y) )
     
 
   
-    return torch.div(num, denom).mean()
+    return torch.div((num_1 + num_2), denom).mean()
 
 
 
 
+
+
+""" 
 
 if __name__ == '__main__':
 
     cos = nn.CosineSimilarity(dim=1, eps=1e-6)
-    x1 = torch.randn(2, 3, 4)
-    x2 = torch.randn(2, 3, 4)
-    #print(cosine_similarity(x1, x2))
-    print(loss_similarity(x1, x2).shape)
+    x1 = torch.randn(10, 10, 1000)
+    x2 = torch.randn(10, 768)
+    print(cosine_similarity(x1, x2))
+    print(cosine_similarity(x1, x2).shape) """
