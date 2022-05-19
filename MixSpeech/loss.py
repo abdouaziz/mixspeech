@@ -44,7 +44,7 @@ def loss_fn (output , Y , fx_1 , fx_2 , alpha):
     
 
   
-    return torch.div((num_1 + num_2), denom).mean()
+    return torch.div((np.sum(num_1 , num_2)), denom).mean()
 
 
 

@@ -77,6 +77,7 @@ def train_step(model, dataloader, optimizer, loss_fn ):
         output , Y , fx_1 , fx_2 , alpha  = model(data)
 
         loss = loss_fn(output , Y , fx_1 , fx_2 , alpha)
+        
  
         losses.append(loss.item())
 
@@ -85,8 +86,9 @@ def train_step(model, dataloader, optimizer, loss_fn ):
         loss.backward()
         optimizer.step()
 
-      
-     
+
+
+  
 
     return np.mean(losses) 
 
@@ -130,9 +132,6 @@ def main():
         print("Epoch: {}/{} Loss: {}".format(epoch, CONFIG['num_epochs'], loss))
 
         wandb.log({"loss": loss})
-
-      
-
         
         if loss < loss_current:
             loss_current = loss
