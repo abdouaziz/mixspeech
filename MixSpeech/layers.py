@@ -35,7 +35,6 @@ class PositionalEncoding(nn.Module):
 
 
 
-
 class ScaledDotProductAttention(nn.Module):
     """ Scaled Dot-Product Attention """
     def __init__(self, temperature, attn_dropout=0.1):
