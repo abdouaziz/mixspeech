@@ -11,14 +11,7 @@ This project is about MixSpeech
 
 ### MixUp Loader 
 
-$$
-\begin{align}
-
-
-X_i = alpha * a_1 + (1 - alpha) * a_2  
-
-\end{align}
-$$
+(E=mc^2)，$$ l_{i} = \frac{ \exp( sim(f(\widetilde{x}) , f(x_i)))  } {\sum_{y in Y}^{10} t_i}. $$
 
 
 ### CNN Encoder 
@@ -27,4 +20,4 @@ $$
 
 ### Encoder Layer
 
-
+ 

@@ -20,6 +20,7 @@ def cosine_similarity(x1, x2, dim=1, eps=1e-8):
         Tensor of shape [batch_size, n_1, ..., n_k].
     """
     
+    
     return nn.CosineSimilarity(dim, eps)(x1, x2)
 
 
@@ -41,10 +42,14 @@ def loss_fn (output , Y , fx_1 , fx_2 , alpha):
 
    
     denom = torch.exp(np.sum(cosine_similarity(output, i) for i in Y) )
+
+    print(f"the finale befor the meaning is here {torch.div((num_1 + num_2), denom)}")
     
 
   
-    return torch.div((np.sum(num_1 , num_2)), denom).mean()
+   # return torch.div((num_1 + num_2), denom).mean()
+
+    return torch.div((num_1 +num_2), (num_1 +num_2 + denom)).mean()
 
 
 
