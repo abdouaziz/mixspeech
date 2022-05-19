@@ -10,8 +10,13 @@ This project is about MixSpeech
 
 
 ### MixUp Loader 
+$$
+\begin{align}
+L =\alpha l_1 + (1-\alpha)l_2 \\
 
-(E=mc^2)，$$ l_{i} = \frac{ \exp( sim(f(\widetilde{x}) , f(x_i)))  } {\sum_{y in Y}^{10} t_i}. $$
+where \\ l_{i} = \frac{ \exp( sim(f(\widetilde{x}) , f(x_i)))  } {\sum_{y \in Y}  \exp( sim(f(\widetilde{x}) , y)) }
+\end{align}
+$$
 
 
 ### CNN Encoder 
