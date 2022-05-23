@@ -1,30 +1,26 @@
 # mixspeech
-This project is about MixSpeech 
-
-
-## Architecture
-
-<p align="center">
-<img src="./input/archi.png"  width="312" height="297">
-</p>
-
-
-### MixUp Loader 
-
-$$
-\begin{align}
-L =\alpha l_1 + (1-\alpha)l_2 \\
-
-where \\l_{i} = \frac{ \exp( sim(f(\widetilde{x}) , f(x_i)))  } {\sum_{y \in Y}  \exp( sim(f(\widetilde{x}) , y)) }
-\end{align}
-$$
-
- 
-
-### CNN Encoder 
+SSL MixUp Speech Representation Toolkit
 
 
 
-### Encoder Layer
+# Training 
+to run the training, you need to run the following command:
+
+```py
+python SSLMixUp/model.py  --path-to-files "/Users/aziiz/Documents/Works/NLP/mixspeech/audio_wav_16000/" \
+                          --max_length 100000 \ 
+                          --epochs 12 \
+                          --learning_rate 0.001 \
+                          --epsilone 1e-8  \
+                          --batch_size 12 \
+                          --n_heads 8 \
+                          --n_layers 12 \
+                          --d_fft 768 \
+                          --d_ff 3048 \
+                          --dropout 0.1 \
+                          --input_channel 10 \
+                          --alpha 2.0 \
+                          --path-to-save "/Users/aziiz/Documents/Works/NLP/mixspeech/model/" \
+```
 
  

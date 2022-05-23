@@ -6,10 +6,7 @@ from torch.nn import functional as F
 import math
 
 
-
-
-
-
+ 
 
 class PositionalEncoding(nn.Module):
     """
@@ -187,7 +184,7 @@ class EncoderLayer(nn.Module):
         return x
 
 
-class TransfomerMixSpeech(nn.Module):
+class Encoder(nn.Module):
     """ Encoder """
     def __init__(self, d_model, d_ff, n_layers, n_head, dropout=0.1):
         super().__init__()
@@ -206,12 +203,12 @@ class Model(nn.Module):
         super().__init__()
         self.features = FeaturesEncoder(input_chanel)
         self.position_enc = PositionalEncoding(d_model, dropout=dropout)
-        self.transformer = TransfomerMixSpeech(d_model, d_ff, n_layers, n_head, dropout=dropout)
+        self.encoder = Encoder(d_model, d_ff, n_layers, n_head, dropout=dropout)
        
     def forward(self, x, mask=None):
         x = self.features(x)  
         x = self.position_enc(x) 
-        Y = self.transformer(x, mask=mask)
+        Y = self.encoder(x, mask=mask)
         
         output = x.mean(dim=1)
         
