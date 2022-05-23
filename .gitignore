@@ -1,3 +1,4 @@
-audio_wav_16000/
-models/
+**/audio_wav_16000/**
+**/models/**
 wandb/
+.DS_Store
