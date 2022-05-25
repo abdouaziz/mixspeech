@@ -114,7 +114,16 @@ def parse_args():
     if args.path_to_file is None:
         raise ValueError("Please specify the path to load files.")
 
+
+    if args.epochs :
+        print("The number of epochs is {args.epochs}")  
+
     return args
+
+
+def print_args():
+    args  =  parse_args()
+    print("The path to files is {args.path_to_files}")
 
 
 """ 
@@ -174,6 +183,7 @@ def train_step(model, dataloader, optimizer, loss_fn):
 def main():
 
     args = parse_args()
+    print("the batch size from args is {args.epochs}")
 
     print("Initializing the model and Training .... ")
 

@@ -38,6 +38,6 @@ class FeaturesEncoder (nn.Module):
 if __name__ == '__main__':
 
     model = FeaturesEncoder(input_chanel=1)
-    x = torch.randn(1,1,100000)
+    x = torch.randn(10,1,100000)
     y = model(x)
     print(y.size())
