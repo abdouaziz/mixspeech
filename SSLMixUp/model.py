@@ -222,8 +222,7 @@ def main():
 
         if loss < loss_current:
             loss_current = loss
-            torch.save(model.state_dict(
-            ), "/Users/aziiz/Documents/Works/NLP/mixspeech/models/model2.bin")
+            torch.save(model.state_dict(), "/Users/aziiz/Documents/Works/NLP/mixspeech/models/model2.bin")
 
 
 if __name__ == "__main__":
