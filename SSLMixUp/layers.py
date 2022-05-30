@@ -119,9 +119,6 @@ class MultiHeadAttention(nn.Module):
 
 
 
-
-
-
 class LayerNorm(nn.Module):
     """ LayerNorm """
     def __init__(self, d_model, eps=1e-6):
