@@ -5,15 +5,7 @@ import torch
 
 
 
-def get_data(data_path):
-    """
-    Loads the data from the given path.
-    """
-    data = pd.read_csv(data_path)
-    return data
 
-
-    
 with open("/Users/aziiz/Documents/Works/NLP/mixspeech/text") as f:
     data = f.read().split("\n")
 
