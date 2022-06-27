@@ -25,6 +25,8 @@ audio_data = {
 
 
 wolof_train = pd.DataFrame(audio_data)
+
+
 wolof_train = wolof_train[:12000]
 
 
