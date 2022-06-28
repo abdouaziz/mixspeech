@@ -20,6 +20,8 @@ audio_data = {
 
 wolof_train = pd.DataFrame(audio_data)
 wolof_train = wolof_train[:12000]
+
+print(wolof_train.head())
 wolof_train.head()
 
  
