@@ -6,8 +6,6 @@ import torch
 with open("/Users/aziiz/Documents/Works/NLP/mixspeech/text") as f:
     data = f.read().split("\n")
 
-
-
 file_name=[]
 sentences=[]
 
