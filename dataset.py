@@ -25,4 +25,18 @@ class Data :
 
 
         return dataset_loaded
+
+
+
+    def load_dataset_from_csv(self,train_csv =None , dev_csv = None , test_csv = None , type_to_load='csv'):
+        if train_csv is  None:
+            raise ValueError('train csv is None')
+
+
+        csv_data_file = { "train": train_csv , "dev": dev_csv , "test": test_csv}
+
+        dataset_loaded = load_dataset(type_to_load, data_files=csv_data_file)
+
+
+        return dataset_loaded
             
