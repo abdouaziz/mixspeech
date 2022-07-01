@@ -1,0 +1,4 @@
+configs:
+  preferences:
+    name: config.yml
+    path: configs/config.yml
