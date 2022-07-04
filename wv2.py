@@ -4,5 +4,3 @@ from transformers import  Wav2Vec2Config , Wav2Vec2ForCTC
 configuration = Wav2Vec2Config()
 configuration.num_layers = 2
 configuration.hidden_size = 512
-configuration.num_heads = 8
-configuration.attention_dropout = 0.1
