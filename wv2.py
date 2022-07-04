@@ -7,5 +7,3 @@ configuration.hidden_size = 512
 configuration.num_heads = 8
 configuration.attention_dropout = 0.1
 configuration.reformer_dropout = 0.1
-configuration.learning_rate = 0.0001
-
