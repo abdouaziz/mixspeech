@@ -11,11 +11,6 @@ configuration.learning_rate = 0.0001
 configuration.batch_size = 32
 configuration.num_epochs = 10
 configuration.max_seq_length = 128
-configuration.max_num_samples = 100000
-configuration.max_num_workers = 4
-configuration.max_num_samples_per_worker = 100000
-configuration.max_num_samples_per_epoch = 100000
-configuration.max_num_epochs = 10
 
 
 
