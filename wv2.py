@@ -9,8 +9,5 @@ configuration.attention_dropout = 0.1
 configuration.reformer_dropout = 0.1
 configuration.learning_rate = 0.0001
 configuration.batch_size = 32
-configuration.num_epochs = 10
-configuration.max_seq_length = 128
-
 
 
