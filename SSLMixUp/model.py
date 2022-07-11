@@ -141,6 +141,7 @@ wandb.config = CONFIG
  
 
 
+
 class SSLMixUpRepresentationLearner(nn.Module):
     def __init__(self, d_model, d_ff, n_layers, n_head, input_chanel, dropout):
         super().__init__()
@@ -160,7 +161,6 @@ def train_step(model, dataloader, optimizer, loss_fn):
     """
     Train the model for one step
     """
-
     model.train()
 
     losses = []
