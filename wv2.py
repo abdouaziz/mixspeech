@@ -147,6 +147,5 @@ class Trainer:
             return torch.tensor(x, dtype=dtype, device=self.device)
 
 
-
     def _tensor_check(self, x):
         return isinstance(x, torch.Tensor)
