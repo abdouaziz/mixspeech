@@ -54,6 +54,8 @@ def to_dataframe(path = 'ALFFA_PUBLIC/ASR/WOLOF/data/train/'):
     return dataframe
 
 
+
+
 def speech_file_to_array_fn(batch):
     speech_array, sampling_rate = librosa.load(batch["file"], sr = 16000)
     batch["speech"] = speech_array
